@@ -5,7 +5,6 @@ import zipfile
 import re
 import tempfile
 import shutil
-import rarfile
 import subprocess
 from pathlib import Path
 from dataclasses import dataclass, field
