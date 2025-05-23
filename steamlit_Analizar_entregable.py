@@ -163,20 +163,9 @@ class ArchiveExtractor:
     """Clase especializada en extracción de archivos"""
     
     @staticmethod
-    @error_handler
     def is_unrar_available() -> bool:
         """Verifica disponibilidad de unrar de forma más eficiente"""
-        try:
-            result = subprocess.run(
-                ["unrar"], 
-                stdout=subprocess.DEVNULL, 
-                stderr=subprocess.DEVNULL, 
-                timeout=5,
-                check=False
-            )
-            return result.returncode != 127  # 127 = command not found
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return False
+        pass
     
     @staticmethod
     @error_handler
@@ -188,21 +177,15 @@ class ArchiveExtractor:
             if ext == '.zip':
                 with zipfile.ZipFile(archive_path, 'r') as z:
                     z.extractall(dest_dir)
-            elif ext == '.rar':
-                if not ArchiveExtractor.is_unrar_available():
-                    raise EnvironmentError("unrar no disponible")
-                with rarfile.RarFile(archive_path) as r:
-                    r.extractall(dest_dir)
             else:
-                raise ValueError(f"Formato no soportado: {ext}")
+                raise ValueError(f"Formato no soportado: {ext}. Solo se soportan archivos .zip")
             
             return True
-        except (zipfile.BadZipFile, rarfile.BadRarFile) as e:
+        except (zipfile.BadZipFile) as e:
             st.error(f"❌ Error: Archivo corrupto o no válido. Detalle: {e}")
             return False
         except EnvironmentError as e:
             st.error(f"❌ Error de entorno: {e}")
-            st.error("Por favor, asegúrate de que 'unrar' esté instalado y accesible en tu sistema si intentas extraer archivos .rar.")
             return False
         except Exception as e:
             st.error(f"❌ Ocurrió un error inesperado durante la extracción: {e}")
@@ -584,9 +567,9 @@ def validate_inputs(repo_path: str, schema: str, branch_name: str) -> Tuple[bool
 def render_level_1():
     """Renderiza el nivel 1 de forma optimizada"""
     st.header("🎮 Nivel 1: Análisis de Scripts")
-    st.write("Sube un archivo ZIP o RAR para analizar. ¡Supera este nivel corrigiendo todos los fallos!")
+    st.write("Sube un archivo ZIP para analizar. ¡Supera este nivel corrigiendo todos los fallos!")
     
-    uploaded_file = st.file_uploader("Archivo ZIP o RAR", type=["zip", "rar"], key="uploader_lvl1")
+    uploaded_file = st.file_uploader("Archivo ZIP", type=["zip"], key="uploader_lvl1")
     
     if not uploaded_file:
         return
