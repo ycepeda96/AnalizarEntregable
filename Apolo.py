@@ -13,6 +13,9 @@ import sys # Importar sys para sys.executable
 # ¡Esta debe ser la PRIMERA llamada a una función de Streamlit!
 st.set_page_config(page_title="Apolo", page_icon="logo.png")
 
+st.title("🚀Apolo es una herramienta de Análisis y Preparación de Scripts DB para Azure DevOps 📦")
+st.write("Sube un archivo ZIP, analiza los scripts de base de datos, y automatiza la creación de rama y manifiesto.")
+
 # --- Configuración (copiada de revisar_archivos_v2.py) ---
 VALID_EXTS = {'.sql', '.pks', '.pkb', '.prc', '.fnc', '.vw', '.trg', '.seq'}
 # REPORT_DIR = 'reports' # No necesitamos un directorio fijo de reportes por ahora, lo mostraremos en la UI
@@ -607,11 +610,6 @@ def get_schema_directories(repo_path: str):
     return schema_list
 
 
-# --- Interfaz Streamlit ---
-# Eliminamos el título principal y la descripción inicial
-# st.title("🚀 Herramienta de Análisis y Preparación de Scripts DB para Azure DevOps 📦")
-# st.write("Sube un archivo ZIP, analiza los scripts de base de datos, y automatiza la creación de rama y manifiesto.")
-
 # Inicializar estados en session_state si no existen y definir el nivel actual
 if 'level' not in st.session_state:
     st.session_state.level = 1
@@ -991,3 +989,7 @@ if st.session_state.get('temp_dir') and os.path.exists(st.session_state.temp_dir
      if st.session_state.get('cleanup_button'): # st.button retorna True si fue clickeado en este rerun
           st.session_state.cleanup_button_clicked = True
           st.rerun() # Forzar un rerun para que la lógica de limpieza se ejecute en el siguiente ciclo (donde cleanup_button_clicked será True)
+
+# Al final del archivo, antes de cerrar el script
+st.markdown("---")  # Línea separadora
+st.markdown("**Autor:** Yondry Cepeda  |  **Versión:** 1.0.0")  # Pie de página
