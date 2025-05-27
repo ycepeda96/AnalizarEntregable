@@ -9,6 +9,10 @@ import subprocess
 from pathlib import Path # Importamos Path para manejar rutas
 import sys # Importar sys para sys.executable
 
+# Configurar la página, incluyendo el favicon y el nuevo título.
+# ¡Esta debe ser la PRIMERA llamada a una función de Streamlit!
+st.set_page_config(page_title="Apolo", page_icon="logo.png")
+
 # --- Configuración (copiada de revisar_archivos_v2.py) ---
 VALID_EXTS = {'.sql', '.pks', '.pkb', '.prc', '.fnc', '.vw', '.trg', '.seq'}
 # REPORT_DIR = 'reports' # No necesitamos un directorio fijo de reportes por ahora, lo mostraremos en la UI
@@ -604,8 +608,9 @@ def get_schema_directories(repo_path: str):
 
 
 # --- Interfaz Streamlit ---
-st.title("🚀 Herramienta de Análisis y Preparación de Scripts DB para Azure DevOps 📦")
-st.write("Sube un archivo ZIP, analiza los scripts de base de datos, y automatiza la creación de rama y manifiesto.")
+# Eliminamos el título principal y la descripción inicial
+# st.title("🚀 Herramienta de Análisis y Preparación de Scripts DB para Azure DevOps 📦")
+# st.write("Sube un archivo ZIP, analiza los scripts de base de datos, y automatiza la creación de rama y manifiesto.")
 
 # Inicializar estados en session_state si no existen y definir el nivel actual
 if 'level' not in st.session_state:
@@ -637,8 +642,9 @@ if 'branch_name_input' not in st.session_state:
 # --- Nivel 1: Subir Archivo y Analizar ---
 # Este bloque solo se ejecuta si el nivel actual es 1
 if st.session_state.get('level', 1) == 1:
-    st.header(f"🎮 Nivel {st.session_state.get('level', 1)}: Análisis de Scripts") # Aseguramos que el header muestre el nivel correcto
-    st.write("Sube un archivo ZIP para analizar su contenido. ¡Supera este nivel corrigiendo todos los fallos para avanzar! 👇")
+    # Eliminamos el encabezado de nivel y el texto descriptivo
+    # st.header(f"🎮 Nivel {st.session_state.get('level', 1)}: Análisis de Scripts")
+    # st.write("Sube un archivo ZIP para analizar su contenido. ¡Supera este nivel corrigiendo todos los fallos para avanzar! 👇")
 
     uploaded_file = st.file_uploader("Elige un archivo ZIP de scripts", type=["zip"], key="uploader_lvl1")
 
@@ -722,9 +728,10 @@ if st.session_state.get('level', 1) == 1:
             # Calcular el total de fallos solo de los scripts DB analizados
             total_issues = sum(len(issues) for issues in findings.values())
 
-            st.subheader("Reporte de Análisis")
+            st.subheader("Reporte de Análisis") # Mantener el subencabezado del reporte
+
             # Modificar encabezado para reflejar que se muestran todos los archivos para procesamiento
-            st.markdown("#### SECCIÓN 1: Archivos identificados y orden (Para procesamiento)")
+            st.markdown("#### SECCIÓN 1: Archivos identificados y orden (Para procesamiento)") # Mantener encabezado de sección
             if all_collected_files_data:
                 # all_collected_files_data ya está ordenado por collect_files_for_manifest
                 for file_data in all_collected_files_data:
@@ -734,7 +741,7 @@ if st.session_state.get('level', 1) == 1:
                  allowed_exts_str = ', '.join(sorted(list(ALLOWED_EXTENSIONS_MANIFEST)))
                  st.info(f"ℹ️ No se identificaron archivos con extensiones permitidas ({allowed_exts_str}) en el archivo subido.")
 
-            st.markdown("#### SECCIÓN 2: Análisis detallado por archivo (Terminadores '/')")
+            st.markdown("#### SECCIÓN 2: Análisis detallado por archivo (Terminadores '/')") # Mantener encabezado de sección
             # files_with_slash_issues solo contendrá los scripts DB con problemas
             files_with_slash_issues = {f_rel_path: issues for f_rel_path, issues in findings.items() if issues}
 
@@ -765,19 +772,21 @@ if st.session_state.get('level', 1) == 1:
 
 # --- Nivel 2 & 3: Preparación para Azure DevOps (Inputs y Acción) ---
 if st.session_state.get('level', 1) >= 2:
-    st.markdown("---")
-    st.header(f"🎯 Nivel {st.session_state.level}: Preparación para Azure DevOps") # Emoji para Nivel 2/3
-    if st.session_state.level == 2:
-         st.write("Ingresa la ruta de tu repositorio local, selecciona el esquema y define el nombre del nuevo branch. ¡Completa correctamente estos campos para pasar al Nivel 3! 👇")
-    elif st.session_state.level == 3:
-         st.write("¡Inputs validados! Estás listo para ejecutar el proceso en Azure DevOps. Presiona el botón para crear la rama, copiar archivos y generar el manifiesto. 💪")
+    st.markdown("---") # Mantener el separador
+    # Eliminamos el encabezado de nivel y el texto descriptivo
+    # st.header(f"🎯 Nivel {st.session_state.level}: Preparación para Azure DevOps")
+    # if st.session_state.level == 2:
+    #      st.write("Ingresa la ruta de tu repositorio local, selecciona el esquema y define el nombre del nuevo branch. ¡Completa correctamente estos campos para pasar al Nivel 3! 👇")
+    # elif st.session_state.level == 3:
+    #      st.write("¡Inputs validados! Estás listo para ejecutar el proceso en Azure DevOps. Presiona el botón para crear la rama, copiar archivos y generar el manifiesto. 💪")
 
 
     # 1. Campo de texto para la ruta del repositorio
     st.session_state.repo_path_input = st.text_input(
-        "Ruta del Directorio del Repositorio Local de Azure DevOps:",
+        "Ruta del Directorio del Repositorio Local:", # Simplificar label
         value=st.session_state.repo_path_input,
-        help="Ingresa la ruta absoluta o relativa al directorio raíz de tu repositorio Git local.",
+        # Eliminamos el help text
+        # help="Ingresa la ruta absoluta o relativa al directorio raíz de tu repositorio Git local.",
         key="repo_path_text_input"
     )
 
@@ -826,7 +835,7 @@ if st.session_state.get('level', 1) >= 2:
 
 
     selected_schema_index = st.selectbox(\
-        "Seleccione el Esquema de Base de Datos:",
+        "Seleccione el Esquema:", # Simplificar label
         options=range(len(schema_display_options)),
         format_func=lambda x: schema_display_options[x].upper() if x > 0 else schema_display_options[x],
         index=index_of_selection, # Usar el índice calculado para la preselección
@@ -840,7 +849,8 @@ if st.session_state.get('level', 1) >= 2:
     st.session_state.branch_name_input = st.text_input(
         "Nombre del Nuevo Branch:",
         value=st.session_state.branch_name_input,
-        help="El nombre del branch debe comenzar con 'F_' y no contener espacios. Se convertirá a mayúsculas.",
+        # Eliminamos el help text
+        # help="El nombre del branch debe comenzar con 'F_' y no contener espacios. Se convertirá a mayúsculas.",
         key="branch_name_text_input"
     )
 
@@ -853,20 +863,6 @@ if st.session_state.get('level', 1) >= 2:
 
     # Check if Level 2 inputs are valid to potentially move to Level 3
     level_2_inputs_valid = repo_path_valid and schema_selected_valid and branch_name_valid_format
-
-    # --- Diagnostic Info ---
-    st.write("--- Estado de Validación ---")
-    st.write(f"✅ Ruta del repositorio válida: {repo_path_valid} (Ruta: {repo_path}, Existe: {os.path.isdir(repo_path)})")
-    st.write(f"✅ Esquema seleccionado válido: {schema_selected_valid} (Seleccionado: {st.session_state.selected_schema})")
-    st.write(f"✅ Formato del nombre del branch válido: {branch_name_valid_format} (Input: '{st.session_state.branch_name_input}', Limpio: '{branch_name_clean}', Mayúsculas: '{branch_name_clean.upper()}', Empieza con F_: {branch_name_clean.upper().startswith('F_')}, Sin Espacios: {' ' not in branch_name_clean}, Longitud > 2: {len(branch_name_clean) > 2})")
-    st.write(f"👉 Nivel 2 de Inputs Válido (General): {level_2_inputs_valid}")
-    # Asegurarse de que total_issues esté accesible y sea 0 para el Nivel 2/3
-    total_issues = sum(len(issues) for issues in st.session_state.get('findings', {}).values())
-    #st.write(f"✅ Fallos en análisis de Nivel 1: {total_issues} (Debe ser 0 para Nivel 2/3)") # Se comentó esta línea antes
-
-    st.write("--------------------------")
-    # --- Fin Info Diagnóstico ---
-
 
     # Transición entre Nivel 2 y 3
     # La transición a Nivel 3 solo ocurre si no hay fallos en Nivel 1 Y los inputs de Nivel 2 son válidos
@@ -892,8 +888,8 @@ if st.session_state.get('level', 1) >= 2:
     disable_button = not (st.session_state.get('level', 1) == 3)
 
 
-    if st.button("🚀 Crear Rama, Copiar Archivos y Generar Manifiesto", disabled=disable_button):
-        st.info("🛠️ Iniciando proceso de Azure DevOps (Nivel 3)...")
+    if st.button("🚀 Ejecutar Proceso Azure DevOps", disabled=disable_button): # Simplificar texto del botón
+        st.info("🛠️ Iniciando proceso...") # Simplificar mensaje de inicio
 
         repo_path = st.session_state.repo_path_input.strip()
         branch_name = st.session_state.branch_name_input.strip().upper() # Usar mayúsculas para el nombre de la rama en Git
@@ -953,12 +949,15 @@ if st.session_state.get('level', 1) >= 2:
 if st.session_state.get('temp_dir') and os.path.exists(st.session_state.temp_dir):
      col1, col2 = st.columns([0.4, 0.6])
      with col1:
-          if st.button("🧹 Limpiar Directorio Temporal y Reiniciar", key="cleanup_button"):
+          if st.button("🧹 Limpiar Temporales y Reiniciar", key="cleanup_button"): # Simplificar texto del botón
                pass # La lógica se activa en el siguiente rerun
 
 
      with col2:
-          st.info("Borra los archivos temporales extraídos y reinicia la aplicación a su estado inicial.")
+          # Eliminamos el texto descriptivo, manteniendo solo mensajes de estado si ocurren.
+          # st.info("Borra los archivos temporales extraídos y reinicia la aplicación a su estado inicial.")
+          pass # No mostrar nada en la segunda columna a menos que haya mensajes de estado del borrado
+
 
      # La lógica de limpieza ahora se activa cuando el estado 'cleanup_button_clicked' es True
      # Inicializar el estado del botón clickeado si no existe
